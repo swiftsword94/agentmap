@@ -14,9 +14,5 @@ hs_err_pid*
 #latex generated files
 *.aux
 *.log
-*.pdf
 *.synctex.gz
-
-#assignment 3's pdf
-!assignment3.pdf
 
