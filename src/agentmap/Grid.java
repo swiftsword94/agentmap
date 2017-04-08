@@ -11,7 +11,7 @@ public class Grid
 	private int width = 0;
 	private int height = 0;
 	private ArrayList<ArrayList<Node>> grid;
-
+	
 	public static <T> boolean isInBounds(ArrayList<ArrayList<T>> grid, int x, int y)
 	{
 		return (y < grid.size()&& x < grid.get(y).size())? true : false;
@@ -19,7 +19,6 @@ public class Grid
 	
 	public void addHardCellBlock(ArrayList<ArrayList<Node>> grid, int xCoord, int yCoord, int size)
 	{
-		
 		Random rand = new Random();
 		if(size%2==0)
 		{
@@ -30,22 +29,22 @@ public class Grid
 		{
 			for(int y = yCoord; y >= 0 && (y > yCoord-(size/2+1)); y--)//righttop+middle
 			{
-				grid.get(y).get(x).setType((rand.nextBoolean())?'1':'2'); 
+				grid.get(y).get(x).setType((rand.nextBoolean())?Terrain.Normal:Terrain.Hard); 
 			}
 			for(int y = yCoord+1; y < grid.size() && (y < yCoord+(size/2+1)); y++)//rightbottom
 			{
-				grid.get(y).get(x).setType((rand.nextBoolean())?'1':'2'); 
+				grid.get(y).get(x).setType((rand.nextBoolean())?Terrain.Normal:Terrain.Hard); 
 			}
 		}
 		for(int x = xCoord-1; x >= 0 && (x > xCoord-(size/2+1)); x--)//left
 		{
 			for(int y = yCoord; y >= 0 && (y > yCoord-(size/2+1)); y--)//lefttop+middle
 			{
-				grid.get(y).get(x).setType((rand.nextBoolean())?'1':'2'); 
+				grid.get(y).get(x).setType((rand.nextBoolean())?Terrain.Normal:Terrain.Hard); 
 			}
 			for(int y = yCoord+1; y < grid.size() && (y < yCoord+(size/2+1)); y++)//leftbottom
 			{
-				grid.get(y).get(x).setType((rand.nextBoolean())?'1':'2'); 
+				grid.get(y).get(x).setType((rand.nextBoolean())?Terrain.Normal:Terrain.Hard); 
 			}
 		}
 	}
@@ -127,9 +126,10 @@ public class Grid
 					if(y <= 0)//&& highway.get(highway.size()-1).equals(graph.get(1).get(x)))
 					{
 						isEnd = true;
+						highway.add(graph.get(y).get(x));
 						break;
 					}
-					if(graph.get(y).get(x).getType() != 'a' && graph.get(y).get(x).getType() != 'b' && !highway.contains(graph.get(y).get(x)))
+					if(!highway.contains(graph.get(y).get(x)))
 					{
 						highway.add(graph.get(y).get(x));
 					}
@@ -145,9 +145,10 @@ public class Grid
 					if(y >= graph.size()-1)//&& highway.get(highway.size()-1).equals(graph.get(graph.size()-2).get(x)))
 					{
 						isEnd = true;
+						highway.add(graph.get(y).get(x));
 						break;
 					}
-					if(graph.get(y).get(x).getType() != 'a' && graph.get(y).get(x).getType() != 'b' && !highway.contains(graph.get(y).get(x)))
+					else if(!highway.contains(graph.get(y).get(x)))
 					{
 						highway.add(graph.get(y).get(x));
 					}
@@ -163,9 +164,10 @@ public class Grid
 					if(x <= 0)//&& highway.get(highway.size()-1).equals(graph.get(y).get(1)))
 					{
 						isEnd = true;
+						highway.add(graph.get(y).get(x));
 						break;
 					}
-					if(graph.get(y).get(x).getType() != 'a' && graph.get(y).get(x).getType() != 'b' && !highway.contains(graph.get(y).get(x)))
+					if(!highway.contains(graph.get(y).get(x)))
 					{
 						highway.add(graph.get(y).get(x));
 					}
@@ -181,9 +183,10 @@ public class Grid
 					if(x >= graph.get(y).size()-1)//&& highway.get(highway.size()-1).equals(graph.get(y).get(graph.get(y).size()-2)))
 					{
 						isEnd = true;
+						highway.add(graph.get(y).get(x));
 						break;
 					}
-					if(graph.get(y).get(x).getType() != 'a' && graph.get(y).get(x).getType() != 'b' && !highway.contains(graph.get(y).get(x)))
+					if(!highway.contains(graph.get(y).get(x)))
 					{
 						highway.add(graph.get(y).get(x));
 					}
@@ -242,11 +245,6 @@ public class Grid
 				}
 			}
 		}
-		//checking highway validity
-		if(isEnd && highway.size()<100)
-		{
-			return null;
-		}
 		return highway;
 	}
 	/**
@@ -291,20 +289,19 @@ public class Grid
 				x = graph.get(y).size()-1;
 			}
 			
-			highway = addHighway(graph, x, y, 20);
 			if(highway != null)
 			{
 				i++;
 				for(Node e : highway)
 				{
-					e.setType((e.getType()  =='1' || e.getType()  =='a' )? 'a' : 'b');
+					e.setType(Terrain.Highway);
 				}
 			}
 		}
 	}
 	public void addBlockedCell(ArrayList<ArrayList<Node>> graph, int x, int y)
 	{
-		graph.get(y).get(x).setType('0');
+		graph.get(y).get(x).setType(Terrain.Blocked);
 	}
 	public void fillBlockedCells(ArrayList<ArrayList<Node>> graph, int cellnum)
 	{
@@ -318,6 +315,45 @@ public class Grid
 			i++;
 		}
 	}
+	private void setNeighbors(int row, int col)
+	{
+		//left cells
+		if (col != 0)
+		{
+			if(row!=0)
+			{
+				grid.get(row).get(col).getNeighbors().add(grid.get(row-1).get(col-1));
+			}
+			grid.get(row).get(col).getNeighbors().add(grid.get(row).get(col-1));
+			if(row!=grid.size()-1)
+			{
+				grid.get(row).get(col).getNeighbors().add(grid.get(row+1).get(col-1));
+			}
+		}
+		//right cells
+		if (col !=grid.get(row).size()-1)
+		{
+			if(row!=0)
+			{
+				grid.get(row).get(col).getNeighbors().add(grid.get(row-1).get(col+1));
+			}
+			grid.get(row).get(col).getNeighbors().add(grid.get(row).get(col+1));
+			if(row!=grid.size()-1)
+			{
+				grid.get(row).get(col).getNeighbors().add(grid.get(row+1).get(col+1));
+			}
+		}
+		//top
+		if(row!=0)
+		{
+			grid.get(row).get(col).getNeighbors().add(grid.get(row-1).get(col));
+		}
+		//bottom
+		if(row!=grid.size()-1)
+		{
+			grid.get(row).get(col).getNeighbors().add(grid.get(row+1).get(col));;
+		}
+	}
 	//create grid
 	public ArrayList<ArrayList<Node>> createGrid(int height, int width)
 	{
@@ -328,7 +364,7 @@ public class Grid
 			this.grid.add(new ArrayList<Node>());		
 			for (int col=0; col<width; col++)
 			{
-				this.grid.get(row).add(new Node('1'));
+				this.grid.get(row).add(new Node(Terrain.Normal));
 			}
 		}
 		//set neighbors
@@ -336,14 +372,7 @@ public class Grid
 		{		
 			for (int col=0; col<width; col++)
 			{
-				grid.get(row).get(col).addNeighbor(grid.get(row-1).get(col+1));
-				grid.get(row).get(col).addNeighbor(grid.get(row-1).get(col));
-				grid.get(row).get(col).addNeighbor(grid.get(row-1).get(col-1));
-				grid.get(row).get(col).addNeighbor(grid.get(row).get(col+1));
-				grid.get(row).get(col).addNeighbor(grid.get(row).get(col-1));
-				grid.get(row).get(col).addNeighbor(grid.get(row+1).get(col+1));
-				grid.get(row).get(col).addNeighbor(grid.get(row+1).get(col));
-				grid.get(row).get(col).addNeighbor(grid.get(row+1).get(col-1));
+				setNeighbors(row, col);
 			}
 		}
 		
@@ -366,37 +395,55 @@ public class Grid
 		{
 			scan = new Scanner(file);
 			String tmp;
+			Node tmpNode;
 			for (int row=0; scan.hasNext(); row++)
 			{
 				this.grid.add(new ArrayList<Node>());
 				tmp = scan.nextLine();
 				for (int col=0; col < tmp.length(); col++)
 				{
-					this.grid.get(row).add(new Node(tmp.charAt(col)));
+					tmpNode = new Node();
+					switch (tmp.charAt(col))
+					{
+					case 'N':
+						tmpNode.setType(Terrain.Normal);
+						break;
+					case 'H':
+						tmpNode.setType(Terrain.Highway);
+						break;
+					case 'T':
+						tmpNode.setType(Terrain.Hard);
+						break;
+					case 'B':
+						tmpNode.setType(Terrain.Blocked);
+						break;
+					default:
+						System.out.println("Invalid Terrain type");
+						System.exit(0);
+						break;
+					}
+					
+					tmpNode.setX(col);
+					tmpNode.setY(row);
+					this.grid.get(row).add(tmpNode);
 				}
 			}
 			scan.close();
 			//set neighbors
-				for (int row=0; row<this.grid.size(); row++)
-				{		
-					for (int col=0; col<this.grid.get(row).size(); col++)
-					{
-						grid.get(row).get(col).addNeighbor(grid.get(row-1).get(col+1));
-						grid.get(row).get(col).addNeighbor(grid.get(row-1).get(col));
-						grid.get(row).get(col).addNeighbor(grid.get(row-1).get(col-1));
-						grid.get(row).get(col).addNeighbor(grid.get(row).get(col+1));
-						grid.get(row).get(col).addNeighbor(grid.get(row).get(col-1));
-						grid.get(row).get(col).addNeighbor(grid.get(row+1).get(col+1));
-						grid.get(row).get(col).addNeighbor(grid.get(row+1).get(col));
-						grid.get(row).get(col).addNeighbor(grid.get(row+1).get(col-1));
-					}
+			for (int row=0; row<this.grid.size(); row++)
+			{		
+				for (int col=0; col<this.grid.get(row).size(); col++)
+				{
+					setNeighbors(row, col);
 				}
-				return this.grid;
 			}
-			catch (FileNotFoundException e)
-			{
-				e.printStackTrace();
-				return null;
-			}
+			return this.grid;
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+			return null;
 		}
 	}
+	
+}
