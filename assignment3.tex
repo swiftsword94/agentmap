@@ -47,8 +47,43 @@ $P(D \wedge B \mid \neg A)=0.6$\\
 $P(\neg A \mid D \wedge B)=\frac{0.8*0.6}{0.7}=0.686$\\
 \section*{Problem 2:}
 \subsection*{a}
+Query: $P(Burglary \mid JohnCalls = true, MaryCalls = true)$\\
+Variable Elimination\\
+Query expression:\\
+$P(B \mid j,m) = \alpha f_1 (B) * $
+$\sum_{e}
+f_2 (E) * $
+$\sum_{a}
+f_3 (A, B, E) * f_4 (A) * f_5 * (A)$\\
+
+$f_6 (B,E)=$
+$\sum_{a}
+f_3 (A,B,E)*f_4 (A)*f_5 (A)$\\
+$=(f_3 (a, B, E)* f_4 (a)* f_5 (a)) + (f_3 (\neg a, B, E)* f_4 (\neg a)* f_5 (\neg a))$
+
+$P(B \mid j,m)= \alpha f_1 (B)*$
+$\sum_{e}
+f_2 (E) * f_6 (B,E)$
+
+$f_7 (B)=$
+$\sum_{e}
+f_2 (E) * f_6 (B,E)$\\
+$=f_2 (e) *f_6 (B,E)+f_2 (\neg e) * f_6 (B, \neg e)$
+
+$P(B \mid j,m)= \alpha f_1 (B) * f_7 (B)$
+
 \subsection*{b}
+Variable Elimination Algorithm - Arithmetic Operations Performed\\
+Additions: 1\\
+Multiplications: 5\\
+Divisions: 1\\
+Tree Enumeration Algorithm - Operations Performed\\
+Additions: 3\\
+Multiplications: 9\\
+Divisions: 1\\
 \subsection*{c}
+If a Bayesian network has the form of a chain, the complexity of computing $P(X_1 \mid X_n = true)$ using enumeration is $O(n)$ because every single X would need to be used in the calculation.\\
+Computing the complexity with variable elimination is also $O(n)$ because no variables would be eliminated. Since the Bayesian network is a chain, there would be no eliminated variables and the complexity would be exactly the same as tree enumeration.\\
 \section*{Problem 3:}
 \subsection*{a}
 Prove:
