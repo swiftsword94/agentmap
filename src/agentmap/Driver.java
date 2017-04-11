@@ -6,7 +6,6 @@ public class Driver
 {
 	public static void main(String[] args)
 	{
-		Grid world = new Grid();
-		world.createGrid(new File(args[0]));
+		Grid world = new Grid(new File(args[0]));
 	}
 }
