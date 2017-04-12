@@ -1,0 +1,135 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+\usepackage{program}
+
+\title{Assignment 3: Bayesian Inference, Temporal State Estimation and Decision Making under Uncertainty}
+\author{Alex Smirnov, Scott Reyes}
+\date{April 11, 2017}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+%\section{}
+%\subsection{}
+\begin{flushleft}
+
+\section*{Problem 1:}
+\subsection*{a}
+The probability that all five of the Boolean variables are simultaneously true is:\\
+
+$P(A)=0.2$\\
+$P(B)=0.5$\\
+$P(C)=0.8$\\
+$P(D \mid A \wedge B)=0.1$\\
+$P(E \mid B \wedge C)=0.3$\\ 
+$P(A \wedge B)=0.1$\\
+$P(A \wedge B \wedge C)=0.08$\\
+$P(A \wedge B \wedge C)\times P(D \mid A \wedge B)=0.008$\\
+$P(A \wedge B \wedge C)\times P(D \mid A \wedge B) \times P(E \mid B \wedge C)=0.0024$\\
+\subsection*{b}
+The probability that all five of the Boolean variables are simultaneously false is:\\
+$P(\neg A)=0.8$\\
+$P(\neg B)=0.5$\\
+$P(\neg C)=0.2$\\
+$P(\neg D \mid \neg A \wedge \neg B)=0.1$\\
+$P(\neg E \mid \neg B \wedge \neg C)=0.8$\\
+$P(\neg A \wedge \neg B)=0.4$\\
+$P(\neg A \wedge \neg B \wedge \neg C)=0.08$\\
+$P(\neg A \wedge \neg B \wedge \neg C) \times P( \neg D \mid \neg A \wedge \neg B)=0.008$\\
+$P(\neg A \wedge \neg B \wedge \neg C)\times P(\neg D \mid \neg A \wedge \neg B) \times P(\neg E \mid \neg B \wedge \neg C)=0.0064$\\
+\subsection*{c}
+$P(\neg A)=0.8$\\
+$P(D \wedge B)=0.7$\\
+$P(D \wedge B \mid \neg A)=0.6$\\
+$P(\neg A \mid D \wedge B)=\frac{0.8*0.6}{0.7}=0.686$\\
+\section*{Problem 2:}
+\subsection*{a}
+Query: $P(Burglary \mid JohnCalls = true, MaryCalls = true)$\\
+Variable Elimination\\
+Query expression:\\
+$P(B \mid j,m) = \alpha f_1 (B) * $
+$\sum_{e}
+f_2 (E) * $
+$\sum_{a}
+f_3 (A, B, E) * f_4 (A) * f_5 * (A)$\\
+
+$f_6 (B,E)=$
+$\sum_{a}
+f_3 (A,B,E)*f_4 (A)*f_5 (A)$\\
+$=(f_3 (a, B, E)* f_4 (a)* f_5 (a)) + (f_3 (\neg a, B, E)* f_4 (\neg a)* f_5 (\neg a))$
+
+$P(B \mid j,m)= \alpha f_1 (B)*$
+$\sum_{e}
+f_2 (E) * f_6 (B,E)$
+
+$f_7 (B)=$
+$\sum_{e}
+f_2 (E) * f_6 (B,E)$\\
+$=f_2 (e) *f_6 (B,E)+f_2 (\neg e) * f_6 (B, \neg e)$
+
+$P(B \mid j,m)= \alpha f_1 (B) * f_7 (B)$
+
+\subsection*{b}
+Variable Elimination Algorithm - Arithmetic Operations Performed\\
+Additions: 1\\
+Multiplications: 5\\
+Divisions: 1\\
+Tree Enumeration Algorithm - Operations Performed\\
+Additions: 3\\
+Multiplications: 9\\
+Divisions: 1\\
+\subsection*{c}
+If a Bayesian network has the form of a chain, the complexity of computing $P(X_1 \mid X_n = true)$ using enumeration is $O(n)$ because every single X would need to be used in the calculation.\\
+Computing the complexity with variable elimination is also $O(n)$ because no variables would be eliminated. Since the Bayesian network is a chain, there would be no eliminated variables and the complexity would be exactly the same as tree enumeration.\\
+\section*{Problem 3:}
+\subsection*{a}
+Prove:
+$$P(X \mid MB(X)) = \alpha P(X \mid U_{1}, ..., U_{m}) \prod_{Yi} P(Y_{i} \mid Z_{i}, ...)$$
+Definition of Bayesian network:
+$$(x_{1},x_{2},...,x_{n})=\prod_{i=1}^{n} P(x_{i} \mid parents(X_{i}))$$
+via product rule:
+$$(x_{1},x_{2},...,x_{n})=P(x_{1} \mid x_{n-1}, ..., x_{1})P(x_{n-1},...,x_{1})$$
+Definition of Markov Assumption:
+$$P(X_{t} \mid X_{0:t-1}) = P(X_{t} \mid X_{t-1})$$
+Using the Markov assumption on the Bayesian network lets all nodes be conditionally independent from the other nodes in the graph given the Markov blanket because X's children  conditionally depend on X as well as the child's parents, and x depends on its parents.
+\subsection*{b}
+$$P(Rain \mid Sprinkler=true \wedge WetGrass=true)$$
+MCMC would solve this by trying fixing sprinkler and wet grass to true while testing rain by calculating the probability repeatedly randomly changing the non fixed variable values. In the case above, there would be 4 states to take into consideration. Cloudy=T/F, Rain=T/F.
+\subsection*{c}
+\section*{Problem 4:}
+\subsection*{a}
+Expected net gain from buying $C_1$ given no test:\\
+$q^+ = 1000$\\
+$q^- = -400$\\
+$P(q^+ ) = 0.7$\\
+$P(q^- ) = 0.3$\\
+$E(X) = (1000*0.7)+(-400*0.3) = 580$\\
+\subsection*{b}
+$P(pass(c_1 )\mid q^+ (c_1 )) = 0.8$\\
+$P(pass(c_1 )\mid q^- (c_1 )) = 0.35$\\
+\medskip
+$P(Pass) = (0.8*0.7)+(0.35*0.3) = 0.665$\\
+$P(q^+ \mid Pass) = \frac{0.8*0.7}{0.665} = 0.84$\\
+$P(q^- \mid Pass) = \frac{0.35*0.3}{0.665} = 0.16$\\
+$P(q^+ \mid \neg Pass) = 0.16$\\
+$P(q^- \mid \neg Pass) = 0.84$\\
+Probability that the car is in good shape $= 0.84$.\\
+Probability that the car is in bad shape $= 0.16$.\\
+\subsection*{c}
+$U(Pass) = $\\
+$U(\neg Pass) = $\\
+\subsection*{d}
+\section*{Problem 5 - Programming Component:}
+\subsection*{a}
+\subsection*{b}
+\subsection*{c - Generating Ground Truth Data}
+\subsection*{d - Filtering and Viterbi Algorithms in Large Maps}
+\subsection*{e}
+\subsection*{f}
+\subsection*{g}
+\subsection*{h - Computational Approximations}
+\end{flushleft}
+\end{document}  
