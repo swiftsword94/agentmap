@@ -13,7 +13,7 @@ public class Player {
 	public int xC; // tracks x coordinate
 	public int yC; // tracks y coordinate
 	public Terrain type; // tracks tile type
-	
+	public Ptable ptable;
 	/**
 	 * Constructor for making a Player object - points to x/y coordinates and holds tile type
 	 * @param x
@@ -24,6 +24,7 @@ public class Player {
 		xC = x;
 		yC = y;
 		type = w.grid.get(xC).get(yC).getType();
+		ptable = new Ptable(w.grid, w.grid.get(y).size(), w.grid.size());
 	}
 	
 	/**
@@ -39,8 +40,8 @@ public class Player {
 	 * activate - generate a list of acts and observations
 	 */
 	public void activate(Grid w){
-		ArrayList<Character> acts = new ArrayList<Character>();
-		ArrayList<Terrain> observations = new ArrayList<Terrain>();
+		ptable.acts = new ArrayList<Character>();
+		ptable.observ = new ArrayList<Terrain>();
 		// For question 1
 		/*acts.add('r');
 		acts.add('r');
@@ -57,29 +58,29 @@ public class Player {
 		double curr = rand.nextDouble();
 		for(int i = 0; i < 100; i++){
 			if(curr <= 0.25){
-				acts.add('u');
+				ptable.acts.add('u');
 			} else if (curr > 0.25 && curr <= 0.5){
-				acts.add('d');
+				ptable.acts.add('d');
 			} else if (curr > 0.5 && curr <= 0.75){
-				acts.add('l');
+				ptable.acts.add('l');
 			} else{
-				acts.add('r');
+				ptable.acts.add('r');
 			}
 			curr = rand.nextDouble();
 		}
 		
 		for(int i = 0; i < 100; i++){
-			if(acts.get(i).equals('u')){
+			if(ptable.acts.get(i).equals('u')){
 				yC ++;
-			} else if(acts.get(i).equals('d')){
+			} else if(ptable.acts.get(i).equals('d')){
 				yC --;
-			} else if(acts.get(i).equals('l')){
+			} else if(ptable.acts.get(i).equals('l')){
 				xC --;
-			} else if(acts.get(i).equals('r')){
+			} else if(ptable.acts.get(i).equals('r')){
 				xC ++;
 			}
 			type = w.grid.get(xC).get(yC).getType();
-			observations.add(type);
+			ptable.observ.add(type);
 		}
 		
 	}

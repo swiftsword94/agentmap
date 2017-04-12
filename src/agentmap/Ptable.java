@@ -204,6 +204,30 @@ public class Ptable
 					 prob.get(i).set(j, filterStep(j,i, acts.get(time), observ.get(time)));
 				}
 			}
+			print();
 		}
+	}
+	public void print()
+	{
+		System.out.println("\\begin{center}");
+		System.out.println("\\begin{tabular}{|c|c|c|}");
+		System.out.println("\\hline");
+		for(ArrayList<Double> row : prob)
+		{
+			for(int i = 0; i < row.size(); i++)
+			{
+				System.out.print(row.get(i));
+				if(i!=row.size()-1)
+				{
+					System.out.print(" &");
+				}
+				else
+				{
+					System.out.print("\\\\ \\hline");
+				}
+			}
+		}
+		System.out.println("\\end{tabular}");
+		System.out.println("\\end{center}");
 	}
 }
