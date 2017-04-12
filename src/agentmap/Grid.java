@@ -147,6 +147,7 @@ public class Grid
 						j--;	
 					}
 				}
+				curr = rand.nextDouble();
 			}
 		}	
 	}
