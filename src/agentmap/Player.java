@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class Player {
 	public int xC; // tracks x coordinate
 	public int yC; // tracks y coordinate
-	public char type; // tracks tile type
+	public Terrain type; // tracks tile type
 	
 	/**
 	 * Constructor for making a Player object - points to x/y coordinates and holds tile type
@@ -20,19 +20,19 @@ public class Player {
 	 * @param y
 	 * @param t
 	 */
-	public Player(int x, int y, char t){
+	public Player(int x, int y, Grid w){
 		xC = x;
 		yC = y;
-		type = t;
+		type = w.grid.get(xC).get(yC).getType();
 	}
 	
 	/**
-	 * Default constructor
+	 * Default constructor - random 
 	 */
 	public Player(){
 		xC = 0;
 		yC = 0;
-		type = 'N';
+		type = Terrain.Normal;
 	}
 	
 	/**
@@ -42,13 +42,18 @@ public class Player {
 		ArrayList<Character> acts = new ArrayList<Character>();
 		ArrayList<Terrain> observations = new ArrayList<Terrain>();
 		// For question 1
-		acts.add('r');
+		/*acts.add('r');
 		acts.add('r');
 		acts.add('d');
 		acts.add('d');
 		
+		observations.add(Terrain.Normal);
+		observations.add(Terrain.Normal);
+		observations.add(Terrain.Hard);
+		observations.add(Terrain.Hard);*/
+		
 		// 100 random moves
-		/*Random rand = new Random();
+		Random rand = new Random();
 		double curr = rand.nextDouble();
 		for(int i = 0; i < 100; i++){
 			if(curr <= 0.25){
@@ -61,6 +66,21 @@ public class Player {
 				acts.add('r');
 			}
 			curr = rand.nextDouble();
-		}*/
+		}
+		
+		for(int i = 0; i < 100; i++){
+			if(acts.get(i).equals('u')){
+				yC ++;
+			} else if(acts.get(i).equals('d')){
+				yC --;
+			} else if(acts.get(i).equals('l')){
+				xC --;
+			} else if(acts.get(i).equals('r')){
+				xC ++;
+			}
+			type = w.grid.get(xC).get(yC).getType();
+			observations.add(type);
+		}
+		
 	}
 }

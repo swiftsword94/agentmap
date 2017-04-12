@@ -10,7 +10,7 @@ public class Grid
 {
 	private int width = 0;
 	private int height = 0;
-	private ArrayList<ArrayList<Node>> grid;
+	public ArrayList<ArrayList<Node>> grid;
 	
 	/**
 	 * Constructor for creating a grid from a file
