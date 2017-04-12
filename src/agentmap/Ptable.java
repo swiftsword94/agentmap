@@ -79,41 +79,98 @@ public class Ptable
 			case 'u':
 				if(y!=0)
 				{
-					transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+					//probability of getting a correct observation
+					if(observation.equals(grid.get(y).get(x).getType())||grid.get(y-1).get(x).getType().equals(Terrain.Blocked))
+					{
+						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+					}
+					else
+					{
+						transProbability *= pCorrectTraversal*pIncorrectSensor + pIncorrectTraversal*pCorrectSensor;
+					}
 				}
 				else
 				{
-					transProbability *= pCorrectSensor;
+					if(observation.equals(grid.get(y).get(x).getType()))
+					{
+						transProbability *= pCorrectSensor;
+					}
+					else
+					{
+						transProbability *= pIncorrectSensor;
+					}
 				}
 				break;
 			case 'd':
-				if(y != prob.size())
+				if(y != prob.size()-1)
 				{
-					transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+					if(observation.equals(grid.get(y).get(x).getType())||grid.get(y+1).get(x).getType().equals(Terrain.Blocked))
+					{
+						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+					}
+					else
+					{
+						transProbability *= pCorrectTraversal*pIncorrectSensor + pIncorrectTraversal*pCorrectSensor;
+					}
 				}
 				else
 				{
-					transProbability *= pCorrectSensor;
+					if(observation.equals(grid.get(y).get(x).getType()))
+					{
+						transProbability *= pCorrectSensor;
+					}
+					else
+					{
+						transProbability *= pIncorrectSensor;
+					}
 				}
 				break;
 			case 'l':
 				if(x != 0)
 				{
-					transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+					if(observation.equals(grid.get(y).get(x).getType())||grid.get(y).get(x-1).getType().equals(Terrain.Blocked))
+					{
+						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+					}
+					else
+					{
+						transProbability *= pCorrectTraversal*pIncorrectSensor + pIncorrectTraversal*pCorrectSensor;
+					}
 				}
 				else
 				{
-					transProbability *= pCorrectSensor;
+					if(observation.equals(grid.get(y).get(x).getType()))
+					{
+						transProbability *= pCorrectSensor;
+					}
+					else
+					{
+						transProbability *= pIncorrectSensor;
+					}
 				}
 				break;
 			case 'r':
-				if(x != prob.get(y).size())
+				if(x != prob.get(y).size()-1)
 				{
-					transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+					if(observation.equals(grid.get(y).get(x).getType())||grid.get(y).get(x+1).getType().equals(Terrain.Blocked))
+					{
+						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+					}
+					else
+					{
+						transProbability *= pCorrectTraversal*pIncorrectSensor + pIncorrectTraversal*pCorrectSensor;
+					}
 				}
 				else
 				{
-					transProbability *= pCorrectSensor;
+					if(observation.equals(grid.get(y).get(x).getType()))
+					{
+						transProbability *= pCorrectSensor;
+					}
+					else
+					{
+						transProbability *= pIncorrectSensor;
+					}
 				}
 				break;
 			default:
@@ -136,7 +193,7 @@ public class Ptable
 			System.err.println("Filtering out of bounds");
 			return;
 		}
-		//for as long as t is deneoted by the index assuming t>=0
+		//for as long as t is denoted by the index assuming t>=0
 		for(int time = 0; time < index; time++)
 		{
 			for(int i = 0; i < prob.size();i++)
