@@ -63,20 +63,63 @@ public class Ptable
 	 * @paran action the action taken to move into this cell
 	 * @param observation the result observed when scanning this cell
 	 */
-	public Double filterStep(int x, int y, Terrain observation)
+	public Double filterStep(int x, int y, char action, Terrain observation)
 	{
+		final Double pCorrectTraversal = new Double(0.9);
+		final Double pIncorrectTraversal = new Double(0.1);
+		final Double pCorrectSensor = new Double(0.9);
+		final Double pIncorrectSensor = new Double(0.05);
 		//ignore blocked cells
 		if(!prob.get(y).get(x).equals(0d))
 		{
 			Double transProbability = 1d;//the transitional probability of going from one state to another
-			if(grid.get(y).get(x).getType().equals(observation))
+			//when taking the action to move here
+			switch(action)
 			{
-				//calculate for correct movement as .9 and incorrect movement as .05
-				transProbability = .9*.9+.1*.05;
-			}
-			else //calculate for correct movement as .05 and incorrect movement as .9
-			{
-				transProbability = .9*.05+.1*.9;
+			case 'u':
+				if(y!=0)
+				{
+					transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+				}
+				else
+				{
+					transProbability *= pCorrectSensor;
+				}
+				break;
+			case 'd':
+				if(y != prob.size())
+				{
+					transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+				}
+				else
+				{
+					transProbability *= pCorrectSensor;
+				}
+				break;
+			case 'l':
+				if(x != 0)
+				{
+					transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+				}
+				else
+				{
+					transProbability *= pCorrectSensor;
+				}
+				break;
+			case 'r':
+				if(x != prob.get(y).size())
+				{
+					transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
+				}
+				else
+				{
+					transProbability *= pCorrectSensor;
+				}
+				break;
+			default:
+				System.err.println("Incorrect direction");
+				System.exit(1);
+				break;
 			}
 			return transProbability*prob.get(y).get(x);
 		}
@@ -101,7 +144,7 @@ public class Ptable
 				ArrayList<Double> row = prob.get(i);
 				for(int j = 0; j < row.size(); j++)
 				{
-					 prob.get(i).set(j, filterStep(j,i,observ.get(time)));
+					 prob.get(i).set(j, filterStep(j,i, acts.get(time), observ.get(time)));
 				}
 			}
 		}
