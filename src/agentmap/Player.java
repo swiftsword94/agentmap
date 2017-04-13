@@ -21,10 +21,13 @@ public class Player {
 	 * @param t
 	 */
 	public Player(int x, int y, Grid w){
+		System.out.println("Initial position: (" + x + ", " + y + ")");
 		xC = x;
 		yC = y;
-		type = w.grid.get(xC).get(yC).getType();
+		type = w.grid.get(yC).get(xC).getType();
 		ptable = new Ptable(w.grid, w.grid.get(y).size(), w.grid.size());
+		ptable.acts = new ArrayList<Character>();
+		ptable.observ = new ArrayList<Terrain>();
 	}
 	
 	/**
@@ -34,14 +37,27 @@ public class Player {
 		xC = 0;
 		yC = 0;
 		type = Terrain.Normal;
+		ptable.acts = new ArrayList<Character>();
+		ptable.observ = new ArrayList<Terrain>();
 	}
 	
+	public void activateA(Grid w){
+		ptable.acts.add('r');
+		ptable.acts.add('r');
+		ptable.acts.add('d');
+		ptable.acts.add('d');
+		
+		ptable.observ.add(Terrain.Normal);
+		ptable.observ.add(Terrain.Normal);
+		ptable.observ.add(Terrain.Highway);
+		ptable.observ.add(Terrain.Highway);
+		
+	}
 	/**
 	 * activate - generate a list of acts and observations
 	 */
 	public void activate(Grid w){
-		ptable.acts = new ArrayList<Character>();
-		ptable.observ = new ArrayList<Terrain>();
+		
 		// For question 1
 		/*acts.add('r');
 		acts.add('r');
@@ -70,16 +86,30 @@ public class Player {
 		}
 		
 		for(int i = 0; i < 100; i++){
-			if(ptable.acts.get(i).equals('u')){
-				yC ++;
-			} else if(ptable.acts.get(i).equals('d')){
-				yC --;
+			if(ptable.acts.get(i).equals('d')){
+				if(yC+1<ptable.height && !w.grid.get(yC+1).get(xC).getType().equals(Terrain.Blocked))
+				{
+					yC++;
+				}
+			} else if(ptable.acts.get(i).equals('u')){
+				if(yC-1>=0 && !w.grid.get(yC-1).get(xC).getType().equals(Terrain.Blocked))
+				{
+					yC--;
+				}
 			} else if(ptable.acts.get(i).equals('l')){
-				xC --;
+				if(xC-1>=0 && !w.grid.get(yC).get(xC-1).getType().equals(Terrain.Blocked))
+				{
+					xC--;
+				}
 			} else if(ptable.acts.get(i).equals('r')){
-				xC ++;
+				if(xC+1<ptable.width && !w.grid.get(yC).get(xC+1).getType().equals(Terrain.Blocked))
+				{
+					xC++;
+				}
 			}
-			type = w.grid.get(xC).get(yC).getType();
+			type = w.grid.get(yC).get(xC).getType();
+			//System.out.println(ptable.acts.get(i));
+			//System.out.println(type);
 			ptable.observ.add(type);
 		}
 		

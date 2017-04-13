@@ -9,9 +9,15 @@ public class Driver
 	{
 		Grid world = new Grid(new File(args[0]));
 		Random rand = new Random();
-		int random1 = (int) (world.grid.size() * rand.nextDouble());
-		int random2 = (int) (world.grid.get(1).size() * rand.nextDouble());
-		Player one = new Player(random1, random2, world);
+		int random1, random2;
+		do
+		{
+			random1 = (int) Math.round((world.grid.size()-1) * rand.nextDouble());
+			random2 = (int) Math.round((world.grid.get(0).size()-1) * rand.nextDouble());
+		}
+		while(world.grid.get(random1).get(random2).getType().equals(Terrain.Blocked));
+		Player one = new Player(random2, random1, world);
 		one.activate(world);
+		one.ptable.filter(100);
 	}
 }

@@ -19,6 +19,7 @@ public class Ptable
 		{
 			prob.add(new ArrayList<Double>());
 		}
+		equalInitializer(grid);
 	}
 	private void equalInitializer(ArrayList<ArrayList<Node>> map)
 	{
@@ -39,11 +40,11 @@ public class Ptable
 			{
 				if(!map.get(y).get(x).getType().equals(Terrain.Blocked))
 				{
-					prob.get(y).set(x, new Double((double)1/unblockedCells));
+					prob.get(y).add(x, new Double((double)1/unblockedCells));
 				}
 				else
 				{
-					prob.get(y).set(x, new Double(0));
+					prob.get(y).add(x, new Double(0));
 				}
 			}
 		}
@@ -55,6 +56,24 @@ public class Ptable
 	public void addObservvation(Terrain observation)
 	{
 		observ.add(observation);
+	}
+	public void normalize()
+	{
+		Double total = new Double(0d);
+		for(ArrayList<Double> row : prob)
+		{
+			for(Double probability : row)
+			{
+				total += probability;
+			}
+		}
+		for(ArrayList<Double> row : prob)
+		{
+			for(int i = 0; i < row.size(); i++)
+			{
+				row.set(i, row.get(i)/total);
+			}
+		}
 	}
 	/**
 	 * filters a single cell given some observation
@@ -77,10 +96,10 @@ public class Ptable
 			switch(action)
 			{
 			case 'u':
-				if(y!=0)
+				if(y!=0 && !grid.get(y-1).get(x).getType().equals(Terrain.Blocked))
 				{
 					//probability of getting a correct observation
-					if(observation.equals(grid.get(y).get(x).getType())||grid.get(y-1).get(x).getType().equals(Terrain.Blocked))
+					if(observation.equals(grid.get(y).get(x).getType()))
 					{
 						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
 					}
@@ -102,9 +121,9 @@ public class Ptable
 				}
 				break;
 			case 'd':
-				if(y != prob.size()-1)
+				if(y != prob.size()-1 && !grid.get(y+1).get(x).getType().equals(Terrain.Blocked))
 				{
-					if(observation.equals(grid.get(y).get(x).getType())||grid.get(y+1).get(x).getType().equals(Terrain.Blocked))
+					if(observation.equals(grid.get(y).get(x).getType()))
 					{
 						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
 					}
@@ -126,9 +145,9 @@ public class Ptable
 				}
 				break;
 			case 'l':
-				if(x != 0)
+				if(x != 0 && !grid.get(y).get(x-1).getType().equals(Terrain.Blocked))
 				{
-					if(observation.equals(grid.get(y).get(x).getType())||grid.get(y).get(x-1).getType().equals(Terrain.Blocked))
+					if(observation.equals(grid.get(y).get(x).getType()))
 					{
 						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
 					}
@@ -150,9 +169,9 @@ public class Ptable
 				}
 				break;
 			case 'r':
-				if(x != prob.get(y).size()-1)
+				if(x != prob.get(y).size()-1 && !grid.get(y).get(x+1).getType().equals(Terrain.Blocked))
 				{
-					if(observation.equals(grid.get(y).get(x).getType())||grid.get(y).get(x+1).getType().equals(Terrain.Blocked))
+					if(observation.equals(grid.get(y).get(x).getType()))
 					{
 						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
 					}
@@ -175,7 +194,6 @@ public class Ptable
 				break;
 			default:
 				System.err.println("Incorrect direction");
-				System.exit(1);
 				break;
 			}
 			return transProbability*prob.get(y).get(x);
@@ -188,11 +206,12 @@ public class Ptable
 	 */
 	public void filter(int index)
 	{
-		if(index>=acts.size()||index>=observ.size())
+		if(index>acts.size()||index>observ.size())
 		{
 			System.err.println("Filtering out of bounds");
 			return;
 		}
+		print();
 		//for as long as t is denoted by the index assuming t>=0
 		for(int time = 0; time < index; time++)
 		{
@@ -204,6 +223,10 @@ public class Ptable
 					 prob.get(i).set(j, filterStep(j,i, acts.get(time), observ.get(time)));
 				}
 			}
+			System.out.println("Action: " + acts.get(time) +" Observation: "+ observ.get(time));
+			/*print();
+			System.out.println("**************NORMALIZED BELOW**************");*/
+			normalize();
 			print();
 		}
 	}
@@ -219,15 +242,15 @@ public class Ptable
 				System.out.print(row.get(i));
 				if(i!=row.size()-1)
 				{
-					System.out.print(" &");
+					System.out.print(" &\t");
 				}
 				else
 				{
-					System.out.print("\\\\ \\hline");
+					System.out.println(" \\\\ \\hline");
 				}
 			}
 		}
 		System.out.println("\\end{tabular}");
-		System.out.println("\\end{center}");
+		System.out.println("\\end{center}\n\n");
 	}
 }
