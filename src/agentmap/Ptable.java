@@ -1,10 +1,12 @@
 package agentmap;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 public class Ptable
 {
-	public ArrayList<ArrayList<Double>> prob = new ArrayList<ArrayList<Double>>();
+	public ArrayList<ArrayList<Double>> prob = new ArrayList<ArrayList<Double>>(), buf = new ArrayList<ArrayList<Double>>();
 	public ArrayList<Character> acts = new ArrayList<Character>();
 	public ArrayList<Terrain> observ = new ArrayList<Terrain>();
 	private ArrayList<ArrayList<Node>> grid;
@@ -18,6 +20,10 @@ public class Ptable
 		for(int y = 0; y < height; y++)
 		{
 			prob.add(new ArrayList<Double>());
+		}
+		for(int y = 0; y < height; y++)
+		{
+			buf.add(new ArrayList<Double>());
 		}
 		equalInitializer(grid);
 	}
@@ -41,10 +47,12 @@ public class Ptable
 				if(!map.get(y).get(x).getType().equals(Terrain.Blocked))
 				{
 					prob.get(y).add(x, new Double((double)1/unblockedCells));
+					buf.get(y).add(x, null);
 				}
 				else
 				{
 					prob.get(y).add(x, new Double(0));
+					buf.get(y).add(x, null);
 				}
 			}
 		}
@@ -75,128 +83,131 @@ public class Ptable
 			}
 		}
 	}
+	public ArrayList<ArrayList<Double>> mult(ArrayList<ArrayList<Double>> matrixA, ArrayList<ArrayList<Double>>  matrixB)
+	{
+		ArrayList<ArrayList<Double>> result = new ArrayList<ArrayList<Double>>();
+		
+		//provides space for arrays
+		int row = matrixA.size(); 
+		int col = matrixB.iterator().next().size();
+		int msize = matrixB.size();
+		//if matrixB's row is not equal to matrixA's columns
+		if(matrixB.size()!=matrixA.iterator().next().size())
+		{
+			return null;
+		}
+		for(int i = 0; i < row; i++)
+		{
+			result.add(new ArrayList<Double>());
+		}
+		//multiplication is done here
+		for(int i = 0; i < row; i++)
+		{
+			for(int j = 0; j < col;j++)
+			{
+				Double tmp = new Double(0);
+				for(int k = 0; k < msize; k++)
+				{
+					tmp += matrixA.get(i).get(k)*matrixB.get(k).get(j);
+				}
+				result.get(i).set(j, tmp);
+			}
+		}
+		
+		return result;
+	}
 	/**
 	 * filters a single cell given some observation
 	 * @param x current cell's x value
 	 * @param y current cell's y value
-	 * @paran action the action taken to move into this cell
+	 * @param action the action taken to move into this cell
 	 * @param observation the result observed when scanning this cell
 	 */
-	public Double filterStep(int x, int y, char action, Terrain observation)
+	private Double filterStep(int x, int y, char action, Terrain observation)
 	{
 		final Double pCorrectTraversal = new Double(0.9);
 		final Double pIncorrectTraversal = new Double(0.1);
 		final Double pCorrectSensor = new Double(0.9);
 		final Double pIncorrectSensor = new Double(0.05);
+		Double transProbability = 0d;//the transitional probability of going from one state to another
 		//ignore blocked cells
-		if(!prob.get(y).get(x).equals(0d))
+		if(!grid.get(y).get(x).getType().equals(Terrain.Blocked))
 		{
-			Double transProbability = 1d;//the transitional probability of going from one state to another
 			//when taking the action to move here
 			switch(action)
 			{
 			case 'u':
-				if(y!=0 && !grid.get(y-1).get(x).getType().equals(Terrain.Blocked))
+				//if we are not coming from a blocked cell add the probability of
+				if(y == 0 || grid.get(y-1).get(x).getType().equals(Terrain.Blocked))
 				{
-					//probability of getting a correct observation
-					if(observation.equals(grid.get(y).get(x).getType()))
-					{
-						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
-					}
-					else
-					{
-						transProbability *= pCorrectTraversal*pIncorrectSensor + pIncorrectTraversal*pCorrectSensor;
-					}
+					//traversal will always fail so the transitional probability will be the the same as doing nothing
+					transProbability += prob.get(y).get(x);
 				}
 				else
 				{
-					if(observation.equals(grid.get(y).get(x).getType()))
-					{
-						transProbability *= pCorrectSensor;
-					}
-					else
-					{
-						transProbability *= pIncorrectSensor;
-					}
+					transProbability += pIncorrectTraversal*prob.get(y).get(x);
 				}
+				if(y != grid.size()-1 && !grid.get(y+1).get(x).getType().equals(Terrain.Blocked))
+				{
+					transProbability += pCorrectTraversal*prob.get(y+1).get(x);
+				}
+				
 				break;
 			case 'd':
-				if(y != prob.size()-1 && !grid.get(y+1).get(x).getType().equals(Terrain.Blocked))
+				if(y == grid.size()-1 || grid.get(y+1).get(x).getType().equals(Terrain.Blocked))
 				{
-					if(observation.equals(grid.get(y).get(x).getType()))
-					{
-						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
-					}
-					else
-					{
-						transProbability *= pCorrectTraversal*pIncorrectSensor + pIncorrectTraversal*pCorrectSensor;
-					}
+					//traversal will always fail so the transitional probability will be the the same as doing nothing
+					transProbability += prob.get(y).get(x);
 				}
 				else
 				{
-					if(observation.equals(grid.get(y).get(x).getType()))
-					{
-						transProbability *= pCorrectSensor;
-					}
-					else
-					{
-						transProbability *= pIncorrectSensor;
-					}
+					transProbability += pIncorrectTraversal*prob.get(y).get(x);
+				}
+				if(y != 0 && !grid.get(y-1).get(x).getType().equals(Terrain.Blocked))
+				{
+					transProbability += pCorrectTraversal*prob.get(y-1).get(x);
 				}
 				break;
 			case 'l':
-				if(x != 0 && !grid.get(y).get(x-1).getType().equals(Terrain.Blocked))
+				if(x == 0 || grid.get(y).get(x-1).getType().equals(Terrain.Blocked))
 				{
-					if(observation.equals(grid.get(y).get(x).getType()))
-					{
-						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
-					}
-					else
-					{
-						transProbability *= pCorrectTraversal*pIncorrectSensor + pIncorrectTraversal*pCorrectSensor;
-					}
+					//traversal will always fail so the transitional probability will be the the same as doing nothing
+					transProbability += prob.get(y).get(x);
 				}
 				else
 				{
-					if(observation.equals(grid.get(y).get(x).getType()))
-					{
-						transProbability *= pCorrectSensor;
-					}
-					else
-					{
-						transProbability *= pIncorrectSensor;
-					}
+					transProbability += pIncorrectTraversal*prob.get(y).get(x);
+				}
+				if(x != grid.size()-1 && !grid.get(y).get(x+1).getType().equals(Terrain.Blocked))
+				{
+					transProbability += pCorrectTraversal*prob.get(y).get(x+1);
 				}
 				break;
 			case 'r':
-				if(x != prob.get(y).size()-1 && !grid.get(y).get(x+1).getType().equals(Terrain.Blocked))
+				if(x == grid.get(y).size()-1 || grid.get(y).get(x+1).getType().equals(Terrain.Blocked))
 				{
-					if(observation.equals(grid.get(y).get(x).getType()))
-					{
-						transProbability *= pCorrectTraversal*pCorrectSensor + pIncorrectTraversal*pIncorrectSensor;
-					}
-					else
-					{
-						transProbability *= pCorrectTraversal*pIncorrectSensor + pIncorrectTraversal*pCorrectSensor;
-					}
+					//traversal will always fail so the transitional probability will be the the same as doing nothing
+					transProbability += prob.get(y).get(x);
 				}
 				else
 				{
-					if(observation.equals(grid.get(y).get(x).getType()))
-					{
-						transProbability *= pCorrectSensor;
-					}
-					else
-					{
-						transProbability *= pIncorrectSensor;
-					}
+					transProbability += pIncorrectTraversal*prob.get(y).get(x);
+				}
+				if(x != 0 && !grid.get(y).get(x-1).getType().equals(Terrain.Blocked))
+				{
+					transProbability += pCorrectTraversal*prob.get(y).get(x-1);
 				}
 				break;
 			default:
 				System.err.println("Incorrect direction");
 				break;
 			}
-			return transProbability*prob.get(y).get(x);
+			//if I were in C/C++ the following lines would be a memory leak
+			if(grid.get(y).get(x).getType().equals(observation))
+			{
+				return new Double(transProbability*pCorrectSensor);
+			}
+			return new Double(transProbability*pIncorrectSensor);
 		}
 		return 0d;
 	}
@@ -211,7 +222,7 @@ public class Ptable
 			System.err.println("Filtering out of bounds");
 			return;
 		}
-		print();
+		ArrayList<ArrayList<Double>> tmp = null; 
 		//for as long as t is denoted by the index assuming t>=0
 		for(int time = 0; time < index; time++)
 		{
@@ -220,12 +231,15 @@ public class Ptable
 				ArrayList<Double> row = prob.get(i);
 				for(int j = 0; j < row.size(); j++)
 				{
-					 prob.get(i).set(j, filterStep(j,i, acts.get(time), observ.get(time)));
+					Double THING = filterStep(j,i, acts.get(time), observ.get(time));
+					buf.get(i).set(j, THING);
 				}
 			}
 			System.out.println("Action: " + acts.get(time) +" Observation: "+ observ.get(time));
-			/*print();
-			System.out.println("**************NORMALIZED BELOW**************");*/
+			//swap to avoid reallocating memory
+			tmp = prob;
+			prob = buf;
+			buf = tmp; 
 			normalize();
 			print();
 		}

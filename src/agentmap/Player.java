@@ -51,7 +51,6 @@ public class Player {
 		ptable.observ.add(Terrain.Normal);
 		ptable.observ.add(Terrain.Highway);
 		ptable.observ.add(Terrain.Highway);
-		
 	}
 	/**
 	 * activate - generate a list of acts and observations

@@ -18,6 +18,7 @@ public class Driver
 		while(world.grid.get(random1).get(random2).getType().equals(Terrain.Blocked));
 		Player one = new Player(random2, random1, world);
 		one.activate(world);
+		one.ptable.print();
 		one.ptable.filter(100);
 	}
 }
